@@ -1,44 +1,25 @@
 const Product = require("../model/product");
 const { success, error } = require("../response-api/responseApi");
-
-// ? Output: Render Add Product Page
-
-const getAddProductPage = (req, res) => {
-  try {
-    res.status(200).json(
-      success(
-        "success",
-        {
-          message: " Add Product Page",
-        },
-        res.statusCode
-      )
-    );
-  } catch (err) {
-    res.status(500).json(error("Something Went to Wrong", res.statusCode));
-  }
-};
+const { statusCode, message } = require("../constant/constant");
 
 // ? Input : Title , Price, Description --- Output : Add Product to the Product Database
 
 const addProduct = async (req, res) => {
   try {
     const { title, price, description } = req.body;
-
     const product = new Product({
       title,
       price,
       description,
-      userId: req.user,
     });
-
     await product.save();
-
     res
-      .status(201)
-      .json(success("success", { message: "Product Added" }, res.statusCode));
+      .status(statusCode.CREATED)
+      .json(success("success", message.ADD_PRODUCT, res.statusCode));
   } catch (err) {
-    res.status(500).json(error("Something Want to Wrong", res.statusCode));
+    res
+      .status(statusCode.INTERNAL_SERVER_ERROR)
+      .json(error(message.SERVER_ERROR, res.statusCode));
   }
 };
 
@@ -46,25 +27,36 @@ const addProduct = async (req, res) => {
 
 const getProductList = async (req, res) => {
   try {
-    const AllProductData = await Product.find();
+    const products = await Product.find();
 
     res
-      .status(200)
-      .json(success("success", { products: AllProductData }, res.statusCode));
+      .status(statusCode.SUCCESS)
+      .json(success("success", { products }, res.statusCode));
   } catch (err) {
-    res.status(500).json(error("Something Went Wrong", res.statusCode));
+    res
+      .status(statusCode.INTERNAL_SERVER_ERROR)
+      .json(error(message.SERVER_ERROR, res.statusCode));
   }
 };
-
 // ? Input: ProductID, EditMode --- Output: Edit Page with Data Populated
 
-const getEditPage = async (req, res) => {
+const getsingleProduct = async (req, res) => {
   try {
-    const id = req.params.productId;
-    const data = await Product.findById(id);
-    res.status(200).json(success("success", { product: data }, res.statusCode));
+    const { productId } = req.params;
+    const product = await Product.findById(productId);
+    if (product) {
+      res
+        .status(statusCode.SUCCESS)
+        .json(success("success", { product }, res.statusCode));
+    } else {
+      res
+        .status(statusCode.NOT_FOUND)
+        .json(error(message.PRODUCT_NOT_FOUND, res.statusCode));
+    }
   } catch (err) {
-    res.status(500).json(error("Something Went Wrong", res.statusCode));
+    res
+      .status(statusCode.INTERNAL_SERVER_ERROR)
+      .json(error(message.SERVER_ERROR, res.statusCode));
   }
 };
 
@@ -73,19 +65,24 @@ const getEditPage = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const { productId, title, price, description } = req.body;
-
-       await Product.updateOne(
-      { _id: productId },
-      { title, price, description }
-    );
-
-    res.status(200).json(success("success", { message: "Data Updated" }));
+    const chekProduct = await Product.findById(productId);
+    if (chekProduct) {
+      await Product.updateOne(
+        { _id: productId },
+        { title, price, description }
+      );
+      res
+        .status(statusCode.SUCCESS)
+        .json(success("success", message.DATA_UPDATED));
+    } else {
+      res
+        .status(statusCode.NOT_FOUND)
+        .json(error(message.PRODUCT_NOT_FOUND, res.statusCode));
+    }
   } catch (err) {
     res
-      .status(404)
-      .json(
-        res.status(500).json(error("Something Went Wrong", res.statusCode))
-      );
+      .status(statusCode.INTERNAL_SERVER_ERROR)
+      .json(error(message.SERVER_ERROR, res.statusCode));
   }
 };
 
@@ -94,37 +91,28 @@ const updateProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
   try {
     const { productId } = req.body;
-
-    await Product.deleteOne({ _id: productId });
-
-    res
-      .status(202)
-      .json(
-        success(
-          "success",
-          { message: "Data successfully Deleted" },
-          res.statusCode
-        )
-      );
-    // }
+    const chekProduct = Product.findById(productId);
+    if (chekProduct) {
+      await Product.deleteOne({ _id: productId });
+      res
+        .status(statusCode.SUCCESS)
+        .json(success("success", message.DATA_DELETED, res.statusCode));
+    } else {
+      res
+        .status(statusCode.NOT_FOUND)
+        .json(error(message.PRODUCT_NOT_FOUND, res.statusCode));
+    }
   } catch (err) {
     res
-      .status(200)
-      .json(
-        res
-          .status(500)
-          .json(
-            res.status(500).json(error("Something Went Wrong", res.statusCode))
-          )
-      );
+      .status(statusCode.INTERNAL_SERVER_ERROR)
+      .json(error(message.SERVER_ERROR, res.statusCode));
   }
 };
 
 module.exports = {
-  getAddProductPage,
   deleteProduct,
   updateProduct,
-  getEditPage,
+  getsingleProduct,
   getProductList,
   addProduct,
 };
