@@ -6,11 +6,14 @@ const { statusCode, message } = require("../constant/constant");
 
 const addProduct = async (req, res) => {
   try {
-    const { title, price, description } = req.body;
+    const { title, price, description, imageUrl } = req.body;
+    console.log(req.user.user._id);
     const product = new Product({
       title,
       price,
       description,
+      imageUrl,
+      userId: req.user.user._id,
     });
     await product.save();
     res
@@ -40,19 +43,18 @@ const getProductList = async (req, res) => {
 };
 // ? Input: ProductID, EditMode --- Output: Edit Page with Data Populated
 
-const getsingleProduct = async (req, res) => {
+const getSingleProduct = async (req, res) => {
   try {
     const { productId } = req.params;
     const product = await Product.findById(productId);
     if (product) {
-      res
+      return res
         .status(statusCode.SUCCESS)
         .json(success("success", { product }, res.statusCode));
-    } else {
-      res
-        .status(statusCode.NOT_FOUND)
-        .json(error(message.PRODUCT_NOT_FOUND, res.statusCode));
     }
+    res
+      .status(statusCode.NOT_FOUND)
+      .json(error(message.PRODUCT_NOT_FOUND, res.statusCode));
   } catch (err) {
     res
       .status(statusCode.INTERNAL_SERVER_ERROR)
@@ -64,21 +66,22 @@ const getsingleProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    const { productId, title, price, description } = req.body;
-    const chekProduct = await Product.findById(productId);
-    if (chekProduct) {
+    const {  title, price, description } = req.body;
+    const {productId}=req.params
+    const checkProduct = await Product.findById(productId);
+    
+    if (checkProduct) {
       await Product.updateOne(
         { _id: productId },
         { title, price, description }
       );
-      res
+      return res
         .status(statusCode.SUCCESS)
         .json(success("success", message.DATA_UPDATED));
-    } else {
-      res
-        .status(statusCode.NOT_FOUND)
-        .json(error(message.PRODUCT_NOT_FOUND, res.statusCode));
     }
+    res
+      .status(statusCode.NOT_FOUND)
+      .json(error(message.PRODUCT_NOT_FOUND, res.statusCode));
   } catch (err) {
     res
       .status(statusCode.INTERNAL_SERVER_ERROR)
@@ -90,18 +93,17 @@ const updateProduct = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
   try {
-    const { productId } = req.body;
-    const chekProduct = Product.findById(productId);
-    if (chekProduct) {
+    const { productId } = req.params;
+    const checkProduct = await Product.findById(productId);
+    if (checkProduct) {
       await Product.deleteOne({ _id: productId });
-      res
+      return res
         .status(statusCode.SUCCESS)
         .json(success("success", message.DATA_DELETED, res.statusCode));
-    } else {
-      res
-        .status(statusCode.NOT_FOUND)
-        .json(error(message.PRODUCT_NOT_FOUND, res.statusCode));
     }
+    res
+      .status(statusCode.NOT_FOUND)
+      .json(error(message.PRODUCT_NOT_FOUND, res.statusCode));
   } catch (err) {
     res
       .status(statusCode.INTERNAL_SERVER_ERROR)
@@ -112,7 +114,7 @@ const deleteProduct = async (req, res) => {
 module.exports = {
   deleteProduct,
   updateProduct,
-  getsingleProduct,
+  getSingleProduct,
   getProductList,
   addProduct,
 };

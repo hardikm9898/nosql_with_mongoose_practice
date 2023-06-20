@@ -7,7 +7,7 @@ const statusCode={
     UNAUTHORIZED: 401,
     FORBIDDEN: 403,
     NOT_FOUND: 404,
-    VADIDATION_ERROR:422,
+    VALIDATION_ERROR:422,
     METHOD_NOT_ALLOWED: 405,
     CONFLICT: 409,
     INTERNAL_SERVER_ERROR: 500,
@@ -26,10 +26,10 @@ const message={
     INVALID_TOKEN:"Invalid token",
     NOT_AUTHORIZE:"Not authorized",
     ORDER_SUCCESS:"your order is accepted",
-    REGISTERED:"Email already registerd",
-    LOGEDIN:"Login successfully",
+    REGISTERED:"Email already registered",
+    LOGIN:"Login successfully",
     LOGOUT:"User logout",
-    LOGINFIRTS:"Login first",
+    LOGINFIRST:"Login first",
 
 
 }

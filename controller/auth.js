@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const { statusCode, message } = require("../constant/constant");
 const User = require("../model/user-model");
@@ -12,18 +13,17 @@ const register = async (req, res) => {
     let user = await User.findOne({ email });
 
     if (user) {
-      res
+      return res
         .status(statusCode.CONFLICT)
         .json(error(message.CONFLICT), res.statusCode);
-    } else {
-      const hashPassword = await bcrypt.hash(password, 12);
-
-      user = new User({ userName, email, password: hashPassword });
-      await user.save();
-      res
-        .status(statusCode.SUCCESS)
-        .json(success("Success", message.REGISTERED, res.statusCode));
     }
+    const hashPassword = await bcrypt.hash(password, 12);
+
+    user = new User({ userName, email, password: hashPassword });
+    await user.save();
+    res
+      .status(statusCode.SUCCESS)
+      .json(success("Success", message.REGISTERED, res.statusCode));
   } catch (err) {
     res
       .status(statusCode.INTERNAL_SERVER_ERROR)
@@ -36,24 +36,26 @@ const login = async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    if (user) {
-      const valid = await bcrypt.compare(password, user.password);
-
-      if (valid) {
-        req.session.isAuth = true;
-        res
-          .status(statusCode.SUCCESS)
-          .json(success("success", message.LOGEDIN, res.statusCode));
-      } else {
-        res
-          .status(statusCode.VADIDATION_ERROR)
-          .json(error(message.VALIDATION_ERROR, res.statusCode));
-      }
-    } else {
-      res
-        .status(statusCode.VADIDATION_ERROR)
+    if (!user)
+      return res
+        .status(statusCode.VALIDATION_ERROR)
         .json(error(message.VALIDATION_ERROR, res.statusCode));
-    }
+
+    const valid = await bcrypt.compare(password, user.password);
+
+    if (!valid)
+      return res
+        .status(statusCode.VALIDATION_ERROR)
+        .json(error(message.VALIDATION_ERROR, res.statusCode));
+
+    const jwtToken = await jwt.sign({ user }, process.env.SECRET_KEY, {
+      expiresIn: "2h",
+    });
+    console.log(jwtToken);
+
+    res
+      .status(statusCode.SUCCESS)
+      .json(success("success", message.LOGIN, res.statusCode));
   } catch (err) {
     res
       .status(statusCode.INTERNAL_SERVER_ERROR)
