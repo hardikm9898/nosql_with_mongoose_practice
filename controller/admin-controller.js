@@ -5,15 +5,14 @@ const { statusCode, message } = require("../constant/constant");
 // ? Input : Title , Price, Description --- Output : Add Product to the Product Database
 
 const addProduct = async (req, res) => {
+
   try {
-    const { title, price, description, imageUrl } = req.body;
-    console.log(req.user.user._id);
+    const { title, price, description } = req.body;
     const product = new Product({
       title,
       price,
       description,
-      imageUrl,
-      userId: req.user.user._id,
+      userId: req.user._id,
     });
     await product.save();
     res
@@ -69,7 +68,7 @@ const updateProduct = async (req, res) => {
     const {  title, price, description } = req.body;
     const {productId}=req.params
     const checkProduct = await Product.findById(productId);
-    
+
     if (checkProduct) {
       await Product.updateOne(
         { _id: productId },

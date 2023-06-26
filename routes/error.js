@@ -1,9 +1,13 @@
-const express=require('express')
+const express = require("express");
+const { error } = require("../response-api/responseApi");
+const { statusCode, message } = require("../constant/constant");
 
-const router= express.Router()
+const router = express.Router();
 
-router.use((req,res)=>{
-res.status(404).render("user/404",{pageTitle:"404",path:"/404"})
-})
+router.use((req, res) => {
+  res
+    .status(statusCode.UNAUTHORIZED)
+    .json(error(message.NOT_FOUND, res.statusCode));
+});
 
-module.exports=router
+module.exports = router;
