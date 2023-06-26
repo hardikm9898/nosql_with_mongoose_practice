@@ -16,6 +16,7 @@ const isAuth = (req, res, next) => {
       const decoded = jwt.verify(token, process.env.SECRET_KEY, {
         expiresIn: "2h",
       });
+
       req.user = decoded.user;
       return next();
     }

@@ -18,6 +18,11 @@ const productSchema = new mongoose.Schema({
     type: ObjectId,
     ref: "User",
   },
+  imageUrl: {
+    data: Buffer,
+    type: String,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("Product", productSchema);

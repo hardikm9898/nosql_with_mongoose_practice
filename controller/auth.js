@@ -60,7 +60,6 @@ const login = async (req, res) => {
       const jwtToken = await jwt.sign({ user }, process.env.SECRET_KEY, {
         expiresIn: "2h",
       });
-      console.log(jwtToken);
 
       res
         .status(statusCode.SUCCESS)

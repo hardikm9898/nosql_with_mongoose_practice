@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     require: true,
   },
-  password:{
+  password: {
     type: String,
     require: true,
   },
@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
           ref: "Product",
           required: true,
         },
-        quentity: { type: Number, required: true },
+        quantity: { type: Number, required: true },
       },
     ],
   },

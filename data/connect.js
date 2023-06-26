@@ -1,4 +1,4 @@
-require("dotenv").config()
+require("dotenv").config();
 const mongoose = require("mongoose");
 
 const connect = mongoose
@@ -7,7 +7,7 @@ const connect = mongoose
     console.log("database connected");
   })
   .catch((err) => {
- console.log(err)
+    console.log(err);
   });
 
 module.exports = connect;
