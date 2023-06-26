@@ -1,31 +1,19 @@
-const{check}=require("express-validator")
+const joi = require("joi");
 
-const loginValidator=[
-    [check("email").exists().withMessage('email is required').isEmail().withMessage('please enter valid email'),
-    check("password","Password must be 5 character").notEmpty().isLength({min:5})]
-]
-const signUpValidator=[check("userName").exists()
-.withMessage('userName is required'),
-  check("email").exists()
-  .withMessage('email is required').isEmail().withMessage('please enter valid email'),
-  check("password","Password must be 5 character").isLength({min:5})]
-
-  const productValidator=[    
-    check("title")
-      .exists()
-      .withMessage("Title is required")
-      .isString()
-      .withMessage("Title is only String"),
-    check("price")
-      .exists()
-      .withMessage("Price is required")
-      .isInt()
-      .withMessage("Price is only number"),
-    check("description")
-      .exists()
-      .withMessage("Description is required")
-      .isLength({ min: 5, max: 100 })
-      .withMessage("required min 5 character and max 100 character"),
-  ]
-
-module.exports={loginValidator,signUpValidator,productValidator}
+const schema = {
+  productSchema: joi.object().keys({
+    title: joi.string().required(),
+    description: joi.string().min(5).max(150).required(),
+    price: joi.number().required,
+  }),
+  loginSchema: joi.object().keys({
+    email: joi.string().min(3).required().email(),
+    password: joi.string().min(6).required(),
+  }),
+  signUpSchema: joi.object().keys({
+    userName: joi.string().min(5).required(),
+    email: joi.string().min(3).required().email(),
+    password: joi.string().min(6).required(),
+  }),
+};
+module.exports = schema;
